@@ -30,6 +30,7 @@ var Spy = function (methodName) {
 
 Spy.prototype.reset = function () {
   this.called = false
+  this.callCount = 0
   this.args = null
   this.errors = null
   this.returns = null
@@ -41,6 +42,7 @@ Spy.prototype.isObjectMethod = function () {
 
 Spy.prototype.fn = function () {
   this.called = true
+  this.callCount += 1
   this.args = argsExist(arguments) ? arguments : null
 
   if (hasCallbackArg(this.args)) {
@@ -90,8 +92,6 @@ Spies.prototype.at = function (depRelPathOrNick, methodName) {
     } else {
       for (var i in spyList) {
         var spy = spyList[i]
-        console.log('spy')
-        console.log(spy)
         if (spy.methodName === methodName)
           return spy
       }
@@ -126,9 +126,6 @@ Spies.prototype.reset = function () {
 
 Spies.prototype.exec = Spies.prototype.require = function () {
   var self = this
-
-  console.log('this.spies')
-  console.log(this.spies)
 
   var proxyquireStubs = Object.keys(this.spies).reduce(function (stubs, key) {
     var spyList = self.spies[key]
