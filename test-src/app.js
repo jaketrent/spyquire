@@ -14,6 +14,10 @@ exports.doObjStuff = function () {
   return obj.objMethod()
 }
 
+exports.doOtherObjStuff = function () {
+  return obj.anotherMethod()
+}
+
 exports.doAsyncStuff = function (done) {
   async.doAsync(done)
 }

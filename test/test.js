@@ -4,6 +4,7 @@ var spyquire = require('../index')
 var spies = spyquire('../test-src/app')
   .with('./fn').nick('fn')
   .with('./obj', 'objMethod')
+  .with('./obj', 'anotherMethod').nick('another')
   .with('./async', 'doAsync').nick('async')
 
 var app = spies.exec()
@@ -23,13 +24,14 @@ describe('app with spyquire', function () {
   })
 
   it('calls object#fn', function () {
-    spies.at('./obj').returns = 'some mock'
+    spies.at('./obj', 'objMethod').returns = 'some mock'
     actual = app.doObjStuff()
     actual.should.eql('some mock')
   })
-  it('calls object#fn', function () {
-    spies.at('./obj', 'objMethod2').returns = 'some mock'
-    actual = app.doObjStuff()
+
+  it('calls another object#fn', function () {
+    spies.at('another').returns = 'some mock'
+    actual = app.doOtherObjStuff()
     actual.should.eql('some mock')
   })
 

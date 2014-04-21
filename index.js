@@ -55,9 +55,24 @@ var Spies = function (modulePath) {
   this.spies = {}
 }
 
+/**
+ * Stores spies internall in a structure like this:
+ *
+ * this.spies = {
+ *   './relative/path': [spy, spy]
+ * }
+ *
+ * Where each spy is self-contained, knowing its own spyable values and nickname
+ *
+ * @param depRelPath
+ * @param methodName
+ * @returns {Spies}
+ */
 Spies.prototype.with = function (depRelPath, methodName) {
   var spy = new Spy(methodName)
-  this.spies[depRelPath] = spy
+  if (!(this.spies[depRelPath] && this.spies[depRelPath].length))
+    this.spies[depRelPath] = []
+  this.spies[depRelPath].push(spy)
   this.spyLastAdded = spy
   return this
 }
@@ -67,36 +82,70 @@ Spies.prototype.nick = function (name) {
   return this
 }
 
-Spies.prototype.at = Spies.prototype.called = function (depRelPathOrNick) {
-  return this.spies[depRelPathOrNick] || this.getSpyWithNick(depRelPathOrNick)
+Spies.prototype.at = function (depRelPathOrNick, methodName) {
+  var spyList = this.spies[depRelPathOrNick]
+  if (spyList) {
+    if (!methodName) {
+      return spyList[0]
+    } else {
+      for (var i in spyList) {
+        var spy = spyList[i]
+        console.log('spy')
+        console.log(spy)
+        if (spy.methodName === methodName)
+          return spy
+      }
+    }
+  } else {
+    return this.getSpyWithNick(depRelPathOrNick)
+  }
+
+//  return this.spies[depRelPathOrNick] || this.getSpyWithNick(depRelPathOrNick)
 }
 
 Spies.prototype.getSpyWithNick = function (nick) {
-  for (var key in this.spies) {
-    var spy = this.spies[key]
-    if (spy.nick === nick)
-      return spy
+  for (var path in this.spies) {
+    var spyList = this.spies[path]
+
+    for (var i in spyList) {
+      var spy =  spyList[i]
+      if (spy.nick === nick)
+        return spy
+    }
   }
 }
 
 Spies.prototype.reset = function () {
   var self = this
   Object.keys(this.spies).forEach(function (key) {
-    self.spies[key].reset()
+    self.spies[key].forEach(function (spy) {
+      spy.reset()
+    })
   })
 }
 
 Spies.prototype.exec = Spies.prototype.require = function () {
   var self = this
+
+  console.log('this.spies')
+  console.log(this.spies)
+
   var proxyquireStubs = Object.keys(this.spies).reduce(function (stubs, key) {
-    if (self.spies[key].isObjectMethod()) {
+    var spyList = self.spies[key]
+    var firstSpy = spyList[0]
+    if (firstSpy.isObjectMethod()) {
       var obj = {}
-      obj[self.spies[key].methodName] = self.spies[key].fn.bind(self.spies[key])
+      for (var i in spyList) {
+        var spy = spyList[i]
+        obj[spy.methodName] = spy.fn.bind(spy)
+      }
       stubs[key] = obj
     } else {
-      stubs[key] = self.spies[key].fn.bind(self.spies[key])
+      stubs[key] = firstSpy.fn.bind(firstSpy)
     }
+
     return stubs
+
   }, {})
 
   return proxyquire(this.modulePath, proxyquireStubs)
