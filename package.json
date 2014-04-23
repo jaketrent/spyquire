@@ -1,6 +1,6 @@
 {
   "name": "spyquire",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "require() replacement for a test environment that allows easy spying",
   "main": "index.js",
   "author": "jaketrent",
