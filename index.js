@@ -124,6 +124,14 @@ Spies.prototype.reset = function () {
   })
 }
 
+function attachStubs(spyList, obj) {
+  for (var i in spyList) {
+    var spy = spyList[i]
+    obj[spy.methodName] = spy.fn.bind(spy)
+  }
+  return obj
+}
+
 Spies.prototype.exec = Spies.prototype.require = function () {
   var self = this
 
@@ -132,18 +140,10 @@ Spies.prototype.exec = Spies.prototype.require = function () {
     var firstSpy = spyList[0]
     var secondSpy = spyList[1]
     if (firstSpy.isObjectMethod()) {
-      var obj = {}
-      for (var i in spyList) {
-        var spy = spyList[i]
-        obj[spy.methodName] = spy.fn.bind(spy)
-      }
-      stubs[key] = obj
+      stubs[key] = attachStubs(spyList, {})
     } else if (secondSpy && secondSpy.isObjectMethod()) {
       var fn = function() {}
-      for (var i in spyList) {
-        var spy = spyList[i]
-        fn.prototype[spy.methodName] = spy.fn.bind(spy)
-      }
+      attachStubs(spyList, fn.prototype)
       stubs[key] = fn
     } else {
       stubs[key] = firstSpy.fn.bind(firstSpy)
