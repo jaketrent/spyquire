@@ -130,6 +130,7 @@ Spies.prototype.exec = Spies.prototype.require = function () {
   var proxyquireStubs = Object.keys(this.spies).reduce(function (stubs, key) {
     var spyList = self.spies[key]
     var firstSpy = spyList[0]
+    var secondSpy = spyList[1]
     if (firstSpy.isObjectMethod()) {
       var obj = {}
       for (var i in spyList) {
@@ -137,6 +138,13 @@ Spies.prototype.exec = Spies.prototype.require = function () {
         obj[spy.methodName] = spy.fn.bind(spy)
       }
       stubs[key] = obj
+    } else if (secondSpy && secondSpy.isObjectMethod()) {
+      var fn = function() {}
+      for (var i in spyList) {
+        var spy = spyList[i]
+        fn.prototype[spy.methodName] = spy.fn.bind(spy)
+      }
+      stubs[key] = fn
     } else {
       stubs[key] = firstSpy.fn.bind(firstSpy)
     }

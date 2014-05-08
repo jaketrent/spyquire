@@ -5,6 +5,7 @@
 var fn = require('./fn')
 var obj = require('./obj')
 var async = require('./async')
+var Constructor = require('./constructor')
 
 exports.doStuff = function () {
   return fn()
@@ -20,4 +21,9 @@ exports.doOtherObjStuff = function () {
 
 exports.doAsyncStuff = function (done) {
   async.doAsync(done)
+}
+
+exports.doConstructorStuff = function () {
+  var con = new Constructor()
+  return con.protoMethod()
 }

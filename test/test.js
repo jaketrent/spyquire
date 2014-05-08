@@ -6,6 +6,8 @@ var spies = spyquire('../test-src/app')
   .with('./obj', 'objMethod')
   .with('./obj', 'anotherMethod').nick('another')
   .with('./async', 'doAsync').nick('async')
+  .with('./constructor').nick('Constructor')
+  .with('./constructor', 'protoMethod').nick('C#protoMethod')
 
 var app = spies.exec()
 
@@ -58,6 +60,12 @@ describe('app with spyquire', function () {
       err.should.eql('mock async errors')
       done()
     })
+  })
+
+  it('spies on constructors and prototype methods', function () {
+    spies.at('C#protoMethod').returns = 'proto mock!'
+    actual = app.doConstructorStuff()
+    actual.should.eql('proto mock!')
   })
 
 })

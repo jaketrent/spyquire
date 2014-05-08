@@ -52,6 +52,13 @@ spies.with('../app/other-dep', 'asyncFnName').nick('other#async')
      .with('../app/other-dep', 'fn2Name').nick('other#fn2')
 ```
 
+For modules that export a single constructor function but for which you want to spy on prototype functions, specify the first spy as the constructor and subsequent spies with the prototype method:
+
+```
+spies.with('../app/constructor').nick('Constructor')
+     .with('../app/constructor', 'protoMethod').nick('C#protoMethod')
+```
+
 To get the required subject under test, call `exec`:
 
 ```
